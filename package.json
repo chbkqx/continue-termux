@@ -1,0 +1,138 @@
+{
+  "name": "continue-termux",
+  "displayName": "DeepSeek FIM 补全",
+  "description": "基于 DeepSeek FIM API 的内联代码补全（幽灵文本）",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.140.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Machine Learning"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "continue-termux.toggle",
+        "title": "切换 DeepSeek 补全"
+      },
+      {
+        "command": "continue-termux.openSettings",
+        "title": "打开 DeepSeek 补全设置"
+      }
+    ],
+    "configuration": {
+      "title": "DeepSeek FIM 补全",
+      "properties": {
+        "continue-termux.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "启用内联代码补全。也可以通过状态栏图标切换。"
+        },
+        "continue-termux.apiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "DeepSeek API Key。注意：该值以明文保存在设置中。"
+        },
+        "continue-termux.baseUrl": {
+          "type": "string",
+          "default": "https://api.deepseek.com/beta",
+          "markdownDescription": "FIM 接口根地址。必须使用 `/beta` 端点，普通端点不支持 `suffix` 参数。"
+        },
+        "continue-termux.model": {
+          "type": "string",
+          "default": "deepseek-flash",
+          "enum": [
+            "deepseek-flash",
+            "deepseek-v4-pro"
+          ],
+          "markdownDescription": "用于补全的模型。`deepseek-flash` 更快，适合高频补全。"
+        },
+        "continue-termux.maxTokens": {
+          "type": "number",
+          "default": 128,
+          "minimum": 1,
+          "maximum": 4096,
+          "markdownDescription": "单次生成的最大 token 数（FIM 上限 4096）。"
+        },
+        "continue-termux.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0,
+          "maximum": 2,
+          "markdownDescription": "采样温度。补全建议使用较低的值。"
+        },
+        "continue-termux.debounceMs": {
+          "type": "number",
+          "default": 300,
+          "minimum": 0,
+          "maximum": 5000,
+          "markdownDescription": "自动触发时两次真实请求之间的最小间隔（毫秒）。"
+        },
+        "continue-termux.maxPrefixChars": {
+          "type": "number",
+          "default": 20000,
+          "minimum": 1000,
+          "maximum": 128000,
+          "markdownDescription": "发送给模型的 prefix 字符上限。prefix 始终从文件开头取到光标位置，以最大化 DeepSeek 上下文缓存的命中率。"
+        },
+        "continue-termux.suffixLines": {
+          "type": "number",
+          "default": 30,
+          "minimum": 0,
+          "maximum": 200,
+          "markdownDescription": "光标之后发送给模型的最大行数。"
+        },
+        "continue-termux.maxLines": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 20,
+          "markdownDescription": "补全结果最多保留的行数，超出的行会被丢弃。"
+        },
+        "continue-termux.disabledLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "不启用补全的语言 ID 列表，例如 `markdown`、`plaintext`。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.140.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "24.x",
+    "typescript-eslint": "^8.61.1",
+    "eslint": "^10.5.0",
+    "esbuild": "^0.28.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^6.0.3",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.0.0"
+  },
+  "overrides": {
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.6"
+  }
+}
